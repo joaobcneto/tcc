@@ -1,0 +1,15 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+
+RewriteCond %{HTTP_HOST} ^getimovel\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.getimovel\.com$
+RewriteRule ^/?$ "http\:\/\/www\.getimovel\.com\/mensagem" [R=301,L]
+
+RewriteCond %{HTTP_HOST} ^itapoaimoveis\.com\.br$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.itapoaimoveis\.com\.br$
+RewriteRule ^/?$ "http\:\/\/www\.itapoaimoveis\.com\.br\/mensagem" [R=301,L]
+

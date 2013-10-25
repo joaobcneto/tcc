@@ -1,0 +1,42 @@
+ html, body {
+   height: 100%;
+}
+#wrap {
+   min-height: 100%;
+   height: auto !important;
+   height: 100%;
+   margin: 0 auto -80px;
+}
+#footer {
+   height: 60px;
+   background-color: #f1f1f1;
+   padding-top: 20px;
+}
+h1 {
+   font-size: 24.5px;
+   border-bottom: 1px solid #DDD;
+}
+h2 {
+   font-size: 17.5px;
+}
+p {
+   text-align: justify;
+}
+.mt30 {
+   margin-top: 30px;
+}
+input[type=file] {
+   display: none;
+}
+.red::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #DE1C0F;
+}
+.red:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #DE1C0F;
+}
+.red::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #DE1C0F;
+}
+.red:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:    #DE1C0F;
+}
