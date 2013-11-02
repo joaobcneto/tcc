@@ -1,4 +1,4 @@
- html, body {
+html, body {
    height: 100%;
 }
 #wrap {
@@ -39,4 +39,7 @@ input[type=file] {
 }
 .red:-ms-input-placeholder { /* Internet Explorer 10+ */
     color:    #DE1C0F;
+}
+.mb10px {
+   margin-bottom: 10px;
 }

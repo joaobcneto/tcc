@@ -15,11 +15,18 @@
 			<div class="navbar-inner">
 				<div class="container fluid">
 					<a class="brand">TCC - João B. C. Neto</a>
-					<ul class="nav pull-right">
-						<li><a href="<?php echo base_url(); ?>">Início</a></li>
-						<li class='active'><a href="#">Cadastro</a></li>
-						<li><a href="<?php echo base_url(); ?>sobre">Sobre</a></li>
-					</ul>
+					<a href="#" class="btn btn-navbar mb10px" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-th-list"></span>
+					</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav pull-right">
+							<li><a href="<?php echo base_url(); ?>">Início</a></li>
+							<li class='active'><a href="#">Cadastro</a></li>
+							<li><a href="<?php echo base_url(); ?>sobre">Sobre</a></li>
+						</ul>
+					</div>
+					
+					
 				</div>
 			</div>
 		</div>
@@ -36,16 +43,17 @@
 					echo form_close();
 				?>
 			</div>
+
 		</div>
 	</div>
- 
+ 	<p>&nbsp</p>
 	<div id="footer">
 		<div class="container">
 			<p>Para mais informações entre em contato pelo email: <a href="mailto:tcc@joaobcneto.com.br">tcc@joaobcneto.com.br</a></p>
 		</div>
 	</div>
  
-	<script src="../assets/js/jquery-1.9.1.min.js"></script>
+	<script src="../assets/js/jquery-1.10.2.min.js"></script>
 	<script src="../assets/js/bootstrap.min.js"></script>
 	<script>
 		$(document).on("submit", "#cadastro", function(e) {

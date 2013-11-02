@@ -9,18 +9,24 @@
 	<link href="<?php echo base_url(); ?>/assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-   <div class="navbar navbar-static-top">
-      <div class="navbar-inner">
-         <div class="container fluid">
-            <a class="brand">TCC - João B. C. Neto</a>
-            <ul class="nav pull-right">
-               <li><a href="<?php echo base_url(); ?>">Início</a></li>
-               <li><a href="<?php echo base_url(); ?>cadastro">Cadastro</a></li>
-               <li class='active'><a href="#">Sobre</a></li>
-            </ul>
-         </div>
-      </div>
-   </div>
+	<div id="wrap">
+	<div class="navbar navbar-static-top">
+		<div class="navbar-inner">
+			<div class="container fluid">
+				<a class="brand">TCC - João B. C. Neto</a>
+				<a href="#" class="btn btn-navbar mb10px" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-th-list"></span>
+				</a>
+				<div class="nav-collapse collapse">
+					<ul class="nav pull-right">
+						<li><a href="<?php echo base_url(); ?>">Início</a></li>
+						<li><a href="<?php echo base_url(); ?>cadastro">Cadastro</a></li>
+						<li class='active'><a href="#">Sobre</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
    
    <div class="container fluid mt30">
       <h1>Sobre</h1>
@@ -40,7 +46,7 @@
             <h2>Padrões buscados</h2>
          </div>
          <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/volume acima da média.png">
             <p><b>Volume acima da média</b> - São selecionadas ações que tenham tido um volume acima da média de 20 períodos. Caso esta premissa seja verdadeira a análise prossegue e caso contrário o sistema passa para a próxima empresa.</p>
 		 </div>
 		 <div class='span3'>
@@ -48,36 +54,44 @@
             <p><b>Cruzamento de médias móveis</b> - Ocorre quando da interseção de duas médias, uma de um menor período e outra de maior. Neste caso a média rápida deve cruzar a lenta no sentido de baixo para cima. É um sinal de compra.</p>
 		 </div>
 		 <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/martelo.png">
             <p><b>Candlestick Martelo (Hammer)</b> - É um candle de corpo pequeno e longa sombra inferior. Quando aparece ao final de uma tendência de baixa, significa uma possível reversão da tendência pela diminuição da força vendedora.</p>
 		 </div>
 		 <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/envolvente de alta.png">
             <p><b>Candlestick envolvente de alta</b> - São gerados por dois candles sendo o último de alta e o penúltimo de baixa. O corpo do último candle deve envolver todo o corpo do anterior e deve aparecer numa tendência de baixa.</p>
 		 </div>
       </div>
 	  <div class='row mt30'>
          <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/grávida de alta.png">
             <p><b>Grávida de alta (Harami)</b> - É o oposto do envolvente de alta, o corpo do candle anterior abrange todo o corpo do último, que fica inteiramente dentro do movimento do dia anterior. Ambos devem apresentar sombras pequenas.</p>
 		 </div>
 		 <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/estrela da manhã.png">
             <p><b>Estrela da manhã (morning star)</b> - É formado pela combinação de três candles sendo que o do meio tem seu corpo abaixo e sem cobertura dos outros dois, que devem ter sentidos opostos, o último de alta e o antepenúltimo de baixa.</p>
 		 </div>
 		 <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/bebê abandonado de alta.png">
             <p><b>Bebê abandonado de alta</b> - Parecido com a estrela da manhã, porém nesta formação até a sombra extrapola a linha dos candles laterais. A mínima do último e do antepenúltimo devem ser maiores que a máxima do penúltimo candle.</p>
 		 </div>
 		 <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/linha penetrante.png">
             <p><b>Linha penetrante</b> Aparece ao final de uma tendência de baixa e é formado por dois candles com sombras pequenas, o último de alta e o penúltimo de baixa. O fechamento atual deve ser igual ou acima de 50% do corpo real anterior.</p>
 		 </div>
       </div>
 	  <div class='row mt30'>
          <div class='span3'>
-			<img src="<?php echo base_url(); ?>assets/img/cruzamento de médias.png">
+			<img src="<?php echo base_url(); ?>assets/img/marobuzu de alta.png">
             <p><b>Marobuzu de alta</b> - Representa um dia em que o mercado teve um grande movimento de alta, com a abertura próxima a mínima e fechamento próximo a máxima. Neste dia os compradores dominaram completamente o mercado.</p>
+		 </div>
+		 <div class='span3'>
+			<img src="<?php echo base_url(); ?>assets/img/martelo invertido.png">
+            <p><b>Martelo invertido</b> - É um candle com uma longa sombra superior, que surge em uma tendência de baixa. Indica o final da tendência pelo final da força vendedora. Deve ter um pequeno corpo real de cor indiferente.</p>
+		 </div>
+		 <div class='span3'>
+			<img src="<?php echo base_url(); ?>assets/img/gap de alta.png">
+            <p><b>Gap de alta</b> - Ocorre quando o preço das ações atravessa uma determinada faixa sem negociações, saltando de um valor para outro. Indica grande otimismo no mercado acontece em função de algum fato inesperado.</p>
 		 </div>
       </div>
       <hr>
@@ -111,11 +125,18 @@
          <div class='span3'>
             <p><a href='http://ellislab.com/codeigniter/'>Codeigniter</a> - Framework PHP baseado no conceito MVC (Model, View, Controller) e mantido pelo Ellislab, é uma ferramenta open source leve e poderosa para o trabalho de desenvolvimento back-end. No sistema foi usado como forma de otimizar os resultados, através da utilização de suas funções para acesso a bancos de dados, reescrita de URL, upload de arquivos, entre outras.</p>
          </div>
+	  <p>&nbsp</p>
+      <p>&nbsp</p>
       </div>
-      <hr>
+   </div>    
+   <div id="footer">
+      <div class="container">
+        <p>Para mais informações entre em contato pelo email: <a href="mailto:tcc@joaobcneto.com.br">tcc@joaobcneto.com.br</a></p>
+      </div>
+   </div>
 
    </div>
-   <script src="../assets/js/jquery-1.9.1.min.js"></script>
+   <script src="../assets/js/jquery-1.10.2.min.js"></script>
    <script src="../assets/js/bootstrap.min.js"></script>
 </body>
 </html>

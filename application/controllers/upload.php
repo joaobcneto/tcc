@@ -4,25 +4,25 @@ class Upload extends CI_Controller {
 
 	public function index()	{
 	
-	   // verifica se recebeu dados
-	   if ($_POST) {
+	    // verifica se recebeu dados
+	    if ($_POST) {
 		
-		   $email = $this->input->post('email');
-		   $senha = $this->input->post('senha');
+			$email = $this->input->post('email');
+			$senha = $this->input->post('senha');
 		   
-         // valida os dados de email e senha
-		   if (($email != EMAIL) || (MD5($senha) != SENHA)){
+			// valida os dados de email e senha
+			if (($email != EMAIL) || (MD5($senha) != SENHA)){
 		   
-			      $data['voltar'] = 'upload';
-			      $data['tipo_alerta'] = 'alert-error';
-				   $data['mensagem'] = 'Combinação incorreta de email e senha.';
-				   $this->load->view('mensagem_view', $data);
+			    $data['voltar'] = 'upload';
+			    $data['tipo_alerta'] = 'alert-error';
+				$data['mensagem'] = 'Combinação incorreta de email e senha.';
+				$this->load->view('mensagem_view', $data);
 				   
 			} else {
 			
-			   // configurações da biblioteca upload
-			   $config['upload_path'] = './dados_brutos/';
-         	$config['allowed_types'] = 'txt|TXT';
+			    // configurações da biblioteca upload
+			    $config['upload_path'] = './dados_brutos/';
+				$config['allowed_types'] = 'txt|TXT';
          	$config['max_size'] = '1024';
          	$config['overwrite']  = FALSE;
          	$this->load->library('upload', $config);

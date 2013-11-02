@@ -3,137 +3,117 @@
 class Inicio extends CI_Controller {
 
 	public function index($atualizar_usuarios = null) {
+
+		$data_atual_timestamp = time("Y/m/d");
+		
+		// o trecho a seguir obtém a data da última atualização do sistema
+		
+        $contador_para_dias = 0;
+        $atualizacao = FALSE;
+		
+		while (!$atualizacao) {
+			if (!file_exists("./dados_calculados/".date('dmY',strtotime("-$contador_para_dias day",$data_atual_timestamp)).".JSON")) {
+				$contador_para_dias++;
+			} else {
+				$atualizacao = date('d/m/Y',strtotime("-$contador_para_dias day",$data_atual_timestamp));  
+			}
+		}
       
-	   $data_atual = time("Y/m/d");
-	   
-	   // obtém a última atualização   
-           $x = 0;
-           $atualizacao = FALSE;
-      while (!$atualizacao) {
-         if (!file_exists("./dados_calculados/".date('dmY',strtotime("-$x day",$data_atual)).".JSON")) {
-            $x++;
-         } else {
-            $atualizacao = date('d/m/Y',strtotime("-$x day",$data_atual));  
-         }
-      }
+		// o trecho a seguir obtém os dados dos três últimos arquivos de atualização
+		
+		$dados_1 = array(); // dados do primeiro dia
+		$dados_2 = array(); // dados do segundo dia
+		$dados_3 = array(); // dados do terceiro dia
+		$contador_para_dias = 0;
+		$contador_para_arquivos = 0;
+		
+		while ($contador_para_arquivos < 3) {
+			$data_timestamp = strtotime("-$contador_para_dias day", $data_atual_timestamp);
+			$arquivo = @fopen("./dados_calculados/".date('dmY', $data_timestamp).".JSON", "r");
+
+			if ($arquivo) {              
+				while (($linha = @fgets($arquivo, 8192)) !== false) {            
+			 	    switch ($contador_para_arquivos) {
+					    case 0:
+							$dados_1[] = json_decode($linha,TRUE);
+							break;
+						case 1:
+							$dados_2[] = json_decode($linha,TRUE);
+							break;
+						case 2:
+							$dados_3[] = json_decode($linha,TRUE);
+							break;
+					}
+				}
+				$contador_para_arquivos++;
+			}
+			$contador_para_dias++;
+		}
       
-      // obtém os dados dos três últimos arquivos
-      $dados_1 = array(); // dados de hoje
-      $dados_2 = array(); // dados de ontem
-      $dados_3 = array(); // dados de anteontem
-      $x = 0;
-      $y = 0;
-      while ($y < 3) {
+		// o trecho a seguir realiza a análise dos dados obtidos nos arquivos e monta o resultado
+		include('./iBovespa.php');
       
-         $data = strtotime("-$x day", $data_atual);
-         $arquivo = @fopen("./dados_calculados/".date('dmY', $data).".JSON", "r");
-                  
-         if ($arquivo) {              
-            while (($linha = @fgets($arquivo, 8192)) !== false) {            
-               switch ($y) {
-                  case 0:
-                     $dados_1[] = json_decode($linha,TRUE);
-                     break;
-                  case 1:
-                     $dados_2[] = json_decode($linha,TRUE);
-                     break;
-                  case 2:
-                     $dados_3[] = json_decode($linha,TRUE);
-                     break;
-               } // fim do swicth que direciona ao array conforme o arquivo                
-            } // fim do while que percorre o arquivo
-            $y++;
-         }
-         $x++;
-      } // fim do while que busca os 3 últimos arquivos de dados calculados
+		// percorre o array iBovespa fazendo a análise
       
-      include('./iBovespa.php');
-      
-      // percorre o array iBovespa fazendo a análise
-      
-      $x = 0; // índice para percorrer o array dos dados
+		$x = 0; // índice para percorrer o array dos dados
       
       
-      foreach ($iBovespa as $acao) {
+		foreach ($iBovespa as $acao) {
       
-         // verifica se a ação no iBovespa é mesma nos 3 arquivos conforme a posição (só para conferir)
-         if (($acao == $dados_1[$x]['emp']) &&
-             ($acao == $dados_2[$x]['emp']) &&
-             ($acao == $dados_3[$x]['emp'])) {
+			// verifica se a ação no iBovespa é mesma nos 3 arquivos conforme a posição (só para conferir)
+			if (($acao == $dados_1[$x]['emp']) &&
+				($acao == $dados_2[$x]['emp']) &&
+				($acao == $dados_3[$x]['emp'])) {
              
-             /* INÍCIO DA ANÁLISE */
-                     
-             // verifica se o volume foi acima da média
-             if ($dados_1[$x]['vol'] > $dados_1[$x]['mms_vol_20']) {
+				/* INÍCIO DA ANÁLISE */
+				
+				/* VOLUME */
+				
+				// verifica se o volume foi acima da média (requisito para prosseguir a análise)
+				if ($dados_1[$x]['vol'] > $dados_1[$x]['mms_vol_20']) {
+				
+					/* MÉDIAS MÓVEIS SIMPLES */
                
-               /* CRUZAMENTO DE MÉDIAS */
-               
-               // verifica o cruzamento de médias móveis simples de baixo para cima "compra"
-               
-                  if (($dados_1[$x]['mms_03'] > $dados_1[$x]['mms_10']) &&
-                      ($dados_2[$x]['mms_03'] < $dados_2[$x]['mms_10'])) {
-                     $matriz[$acao][] = 'MMS03 cruzou MMS10 de baixo para cima';
-                  }
-               
-               
-               /* CANDLESTICKS */
-               
-               // martelo
-               /*
-                * Um pequeno corpo real no final de uma tendência de baixa;
-                * A cor do corpo é indiferente;
-                * A sombra inferior deve ser duas ou três vezes maior que o corpo;
-                * A sombra superior é inexistente ou muito pequena;
-                * (MATSURA p.54)
-                */
-               
-                  if ((($dados_1[$x]['mms_03'] < $dados_2[$x]['mms_03']) &&
-                       ($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03'])) &&
-                      ($dados_1[$x]['abe'] > ($dados_1[$x]['min'] + (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66))) && 
-                      ($dados_1[$x]['fec'] > ($dados_1[$x]['min'] + (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66)))) {
-                       $matriz[$acao][] = 'Martelo';
-                  }
+					// identifica o cruzamento da média móvel simples de 3 períodos de baixo para cima a de 10 períodos
+					if (($dados_1[$x]['mms_03'] > $dados_1[$x]['mms_10']) && ($dados_2[$x]['mms_03'] < $dados_2[$x]['mms_10'])) {
+						$resultado[$acao][] = 'MMS03 cruzou MMS10 de baixo para cima';
+					}
                
                
-               // Envolvente de alta
-               /*
-                * Composto por dois candles;
-                * Corpo real envolve o corpo real anterior;
-                * Corpos reais com cores alternadas;
-                * Corpos com sombras inferior e superior muito pequenas;
-                * (MATSURA p.56)
-                */        
+					/* CANDLESTICKS */
                
-                  if (($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03']) &&
-                      ($dados_1[$x]['abe'] < $dados_2[$x]['fec']) && 
-                      ($dados_1[$x]['fec'] > $dados_2[$x]['abe']) &&
-                      (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe'])) &&
-                      (($dados_2[$x]['max'] - $dados_2[$x]['min']) * 0.5 < ($dados_2[$x]['abe'] - $dados_2[$x]['fec']))) {
-                       $matriz[$acao][] = 'Envolvente de alta';
-                  }
+					// identifica o padrão candlestick martelo (hammer)
+                    if ((($dados_1[$x]['mms_03'] < $dados_2[$x]['mms_03']) &&
+						 ($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03'])) &&
+                        ($dados_1[$x]['abe'] > ($dados_1[$x]['min'] + (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66))) && 
+                        ($dados_1[$x]['fec'] > ($dados_1[$x]['min'] + (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66)))) {
+                        $resultado[$acao][] = 'Martelo';
+                    }
                
                
-               // Mulher grávida de alta
-               /*
-                * Composto por dois candles;
-                * Corpo real envolvido pelo corpo real anterior;
-                * Corpo real envolvido de cor indiferente;
-                * Corpos com sombras inferior e superior muito pequenas;
-                * (MATSURA p.57)
-                */        
-                  if (($dados_1[$x]['mms_03'] < $dados_2[$x]['mms_03']) &&
-                      ($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03']) &&                      
-                      ($dados_1[$x]['abe'] > $dados_2[$x]['fec']) && 
-                      ($dados_1[$x]['fec'] > $dados_2[$x]['fec']) && 
-                      ($dados_1[$x]['abe'] < $dados_2[$x]['abe']) &&
-                      ($dados_1[$x]['fec'] < $dados_2[$x]['abe']) &&                      
-                      ($dados_1[$x]['max'] < $dados_2[$x]['max']) && 
-                      ($dados_1[$x]['min'] > $dados_2[$x]['min']) &&
-                      (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe'])) &&
-                      (($dados_2[$x]['max'] - $dados_2[$x]['min']) * 0.5 < ($dados_2[$x]['abe'] - $dados_2[$x]['fec']))) {
-             
-                       $matriz[$acao][] = 'Grávida de alta';
-                  }
+					// identifica o padrão candlestick envolvente de alta (engolfing)
+					if (($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03']) &&
+   					    ($dados_1[$x]['abe'] < $dados_2[$x]['fec']) && 
+                        ($dados_1[$x]['fec'] > $dados_2[$x]['abe']) &&
+                        (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe'])) &&
+                        (($dados_2[$x]['max'] - $dados_2[$x]['min']) * 0.5 < ($dados_2[$x]['abe'] - $dados_2[$x]['fec']))) {
+                        $resultado[$acao][] = 'Envolvente de alta';
+					}
+               
+               
+					// identifica o padrão candlestick mulher grávida de alta (harami)
+                    if (($dados_1[$x]['mms_03'] < $dados_2[$x]['mms_03']) &&
+                        ($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03']) &&                      
+                        ($dados_1[$x]['abe'] > $dados_2[$x]['fec']) && 
+                        ($dados_1[$x]['fec'] > $dados_2[$x]['fec']) && 
+                        ($dados_1[$x]['abe'] < $dados_2[$x]['abe']) &&
+                        ($dados_1[$x]['fec'] < $dados_2[$x]['abe']) &&                      
+                        ($dados_1[$x]['max'] < $dados_2[$x]['max']) && 
+                        ($dados_1[$x]['min'] > $dados_2[$x]['min']) &&
+                        (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe'])) &&
+                        (($dados_2[$x]['max'] - $dados_2[$x]['min']) * 0.5 < ($dados_2[$x]['abe'] - $dados_2[$x]['fec']))) {
+                        $resultado[$acao][] = 'Grávida de alta';
+					}
        
                
 
@@ -150,7 +130,7 @@ class Inicio extends CI_Controller {
                        ($dados_2[$x]['mms_03'] < $dados_3[$x]['mms_03'])) &&
                       ($dados_1[$x]['abe'] < ($dados_1[$x]['max'] - (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66))) && 
                       ($dados_1[$x]['fec'] < ($dados_1[$x]['max'] - (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.66)))) {
-                       $matriz[$acao][] = 'Martelo invertido';
+                       $resultado[$acao][] = 'Martelo invertido';
                   }
                
                
@@ -174,7 +154,7 @@ class Inicio extends CI_Controller {
                       ($dados_1[$x]['min'] < $dados_2[$x]['min']) &&
                       (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe'])) &&
                       (($dados_2[$x]['max'] - $dados_2[$x]['min']) * 0.5 < ($dados_2[$x]['abe'] - $dados_2[$x]['fec']))) {
-                       $matriz[$acao][] = 'Linha penetrante';
+                       $resultado[$acao][] = 'Linha penetrante';
                   }
 
                
@@ -200,7 +180,7 @@ class Inicio extends CI_Controller {
                       ($dados_3[$x]['fec'] > $dados_2[$x]['fec']) &&
                       ($dados_3[$x]['abe'] > $dados_2[$x]['abe']) &&
                       (($dados_1[$x]['max'] - $dados_1[$x]['min']) * 0.5 < ($dados_1[$x]['fec'] - $dados_1[$x]['abe']))) {
-                       $matriz[$acao][] = 'Estrela da manhã';
+                       $resultado[$acao][] = 'Estrela da manhã';
                   }
           
                
@@ -224,35 +204,36 @@ class Inicio extends CI_Controller {
                       ($dados_3[$x]['abe'] > $dados_3[$x]['fec']) &&
                       ($dados_1[$x]['min'] > $dados_2[$x]['max']) &&
                       ($dados_3[$x]['min'] > $dados_2[$x]['max'])) {
-                       $matriz[$acao][] = 'Bebê abandonado de alta';
+                       $resultado[$acao][] = 'Bebê abandonado de alta';
                   }
                
                
  
                
                // Marobuzu de alta
-               /*
-                * 
-                */
-               // PORCENTAGEM DE ALTA AQUI
                   if ((($dados_1[$x]['min'] == $dados_1[$x]['abe']) ||
                        ($dados_1[$x]['min'] == ($dados_1[$x]['abe'] - 0.01))) &&
                       ($dados_1[$x]['max'] == $dados_1[$x]['fec'])) {
-                       $matriz[$acao][] = 'Marobuzu de alta';
+                       $resultado[$acao][] = 'Marobuzu de alta';
+                  }
+				  
+				  // Gap de alta
+                  if ($dados_1[$x]['min'] > ($dados_2[$x]['max']+0.01)) {
+                       $resultado[$acao][] = 'Gap de alta';
                   }
         
                
-               if (isset($matriz[$acao])) {
-                  $matriz[$acao]['abe'] = $dados_1[$x]['abe'];
-                  $matriz[$acao]['max'] = $dados_1[$x]['max'];
-                  $matriz[$acao]['min'] = $dados_1[$x]['min'];
-                  $matriz[$acao]['fec'] = $dados_1[$x]['fec'];
+               if (isset($resultado[$acao])) {
+                  $resultado[$acao]['abe'] = $dados_1[$x]['abe'];
+                  $resultado[$acao]['max'] = $dados_1[$x]['max'];
+                  $resultado[$acao]['min'] = $dados_1[$x]['min'];
+                  $resultado[$acao]['fec'] = $dados_1[$x]['fec'];
                }
-             }
-         }
+             } // fim do if que verifica se o volume foi acima da média
+         } // fim do if que verifica a posição das ações no mesmo arquivo
          $x++;
       } // fim do foreach no array iBovespa
-        $dados['matriz'] = @$matriz;
+        $dados['matriz'] = @$resultado;
 	$dados['atualizacao'] = $atualizacao;
 	   
 	   // Entra aqui quando vem através do upload (faz a análise e atualiza os usuários)
@@ -261,17 +242,17 @@ class Inicio extends CI_Controller {
 	            // Prepara o texto do email
 	            $texto = '';
 	            
-	            if (!empty($matriz)) {
-	               $acoes = array_keys($matriz);
+	            if (!empty($resultado)) {
+	               $acoes = array_keys($resultado);
                     foreach($acoes as $acao) {
                         $texto .= '<br>----------------------------------------------------------';
                         $texto .= '<br>'.$acao.'<br><br>';
-                        unset($matriz[$acao]['abe']);
-                        unset($matriz[$acao]['fec']);
-                        unset($matriz[$acao]['max']);
-                        unset($matriz[$acao]['min']);
+                        unset($resultado[$acao]['abe']);
+                        unset($resultado[$acao]['fec']);
+                        unset($resultado[$acao]['max']);
+                        unset($resultado[$acao]['min']);
                         
-                        foreach($matriz[$acao] as $inf) {
+                        foreach($resultado[$acao] as $inf) {
                                 $texto .= $inf.'<br>';
                         }                      
 
@@ -293,22 +274,20 @@ class Inicio extends CI_Controller {
 	            $this->load->model('usuario_model', '', TRUE);
 		         $usuarios = $this->usuario_model->buscaTodos();
 		         foreach ($usuarios as $usuario) {
-		            if (!mail($usuario->email, $assunto, $texto, $headers)) {
+		            if (!@mail($usuario->email, $assunto, $texto, $headers)) {
 		               $data = array();
-	                       $data['voltar'] = '';
-	                       $data['tipo_alerta'] = 'alert-error';
-		               $data['mensagem'] = 'Falha ao enviar emails aos usuários.';
+	                  $data['voltar'] = '';
+	                  $data['tipo_alerta'] = 'alert-error';
+		               $data['mensagem'] = 'Falha ao enviar email para '.$usuario->email;
 		               $this->load->view('mensagem_view', $data);
-		            } else {
-		                $data = array();
-	                        $data['voltar'] = '';
-	                        $data['tipo_alerta'] = 'alert-success';
-		                $data['mensagem'] = 'Sistema atualizado com sucesso';
-		                $this->load->view('mensagem_view', $data);
 		            }
 	            }
-	   
 	            
+		         $data = array();
+	            $data['voltar'] = '';
+	            $data['tipo_alerta'] = 'alert-success';
+		         $data['mensagem'] = 'Sistema atualizado com sucesso';
+		         $this->load->view('mensagem_view', $data);	            
 		    
 	   } else {
 	      $this->load->view('inicio_view', $dados);
